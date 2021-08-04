@@ -12,7 +12,7 @@ static int pointer_idx = 0;
 
 // If the garbage collector is used then this must be called as first thing
 // during a fuzz run.
-void gb_init() {
+void af_gb_init() {
   pointer_idx = 0;
 
    for (int i = 0; i < GB_SIZE; i++) {
@@ -20,7 +20,7 @@ void gb_init() {
    }
 }
 
-void gb_cleanup() {
+void af_gb_cleanup() {
   for(int i = 0; i < GB_SIZE; i++) {
     if (pointer_arr[i] != NULL) {
       free(pointer_arr[i]);
@@ -28,7 +28,7 @@ void gb_cleanup() {
   }
 }
 
-char *get_null_terminated(const uint8_t **data, size_t *size) {
+char *af_get_null_terminated(const uint8_t **data, size_t *size) {
 #define STR_SIZE 75
   if (*size < STR_SIZE || (int)*size < 0) {
     return NULL;
@@ -43,7 +43,7 @@ char *get_null_terminated(const uint8_t **data, size_t *size) {
   return new_s;
 }
 
-char *gb_get_random_data(const uint8_t **data, size_t *size, size_t to_get) {
+char *af_gb_get_random_data(const uint8_t **data, size_t *size, size_t to_get) {
   if (*size < to_get || (int)*size < 0) {
     return NULL;
   }
@@ -59,9 +59,9 @@ char *gb_get_random_data(const uint8_t **data, size_t *size, size_t to_get) {
   return new_s;
 }
 
-char *gb_get_null_terminated(const uint8_t **data, size_t *size) {
+char *af_gb_get_null_terminated(const uint8_t **data, size_t *size) {
 
-  char *nstr = get_null_terminated(data, size);
+  char *nstr = af_get_null_terminated(data, size);
   if (nstr == NULL) {
     return NULL;
   }
@@ -69,14 +69,14 @@ char *gb_get_null_terminated(const uint8_t **data, size_t *size) {
   return nstr;
 }
 
-char *gb_alloc_data(size_t len) {
+char *af_gb_alloc_data(size_t len) {
   char *ptr = calloc(1, len);
   pointer_arr[pointer_idx++] = (void*)ptr;
   
   return ptr;
 }
 
-short get_short(const uint8_t **data, size_t *size) {
+short af_get_short(const uint8_t **data, size_t *size) {
   if (*size <= 0) return 0;
   short c = (short)(*data)[0];
   *data += 1;
@@ -84,7 +84,7 @@ short get_short(const uint8_t **data, size_t *size) {
   return c;
 }
 
-int get_int(const uint8_t **data, size_t *size) {
+int af_get_int(const uint8_t **data, size_t *size) {
   if (*size <= 4) return 0;
   const uint8_t *ptr = *data;
   int val = *((int*)ptr);
