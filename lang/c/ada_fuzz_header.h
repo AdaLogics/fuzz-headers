@@ -76,6 +76,15 @@ char *af_gb_alloc_data(size_t len) {
   return ptr;
 }
 
+char *af_gb_get_fixed_string() {
+  char *ptr = malloc(2);
+  ptr[0] = 'A';
+  ptr[1] = '\0';
+  pointer_arr[pointer_idx++] = (void*)ptr;
+
+  return ptr;
+}
+
 short af_get_short(const uint8_t **data, size_t *size) {
   if (*size <= 0) return 0;
   short c = (short)(*data)[0];
@@ -92,4 +101,63 @@ int af_get_int(const uint8_t **data, size_t *size) {
   *size -= 4;
   return val;
 }
+
+
 // end simple garbage collector.
+
+
+/* A-style */
+const uint8_t *a_origin_data;
+size_t a_size;
+
+void af_safe_gb_init(const uint8_t *data, size_t size) {
+  af_gb_init();
+  a_origin_data = data;
+  a_size = size;
+}
+
+int ada_safe_get_int() {
+  return af_get_int(&a_origin_data, &a_size);
+}
+
+char *ada_safe_get_char_p() {
+  char *tmps = af_gb_get_null_terminated(&a_origin_data, &a_size);
+  if (tmps != NULL) {
+    return tmps;
+  }
+  return af_gb_get_fixed_string();
+}
+
+char *filename2 = NULL;
+
+char *af_safe_write_random_file() {
+  char *filename = malloc(10);
+  filename[0] = '/';
+  filename[1] = 't';
+  filename[2] = 'm';
+  filename[3] = 'p';
+  filename[4] = '/';
+  filename[5] = '1';
+  filename[6] = '2';
+  filename[7] = '.';
+  filename[8] = 'a';
+  filename[9] = '\0';
+  filename2 = filename;
+
+  FILE *fp = fopen(filename, "wb");
+  char *content = ada_safe_get_char_p();
+  fwrite(content, strlen(content), 1, fp);
+  fclose(fp);
+
+  return filename;
+}
+
+void af_safe_gb_cleanup() {
+  af_gb_cleanup();
+
+  if (filename2 != NULL) {
+    unlink(filename2);
+    free(filename2);
+    filename2 = NULL;
+  }
+}
