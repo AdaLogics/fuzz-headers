@@ -4,6 +4,8 @@
  * 
 */
 
+#include <unistd.h>
+
 // Simple garbage collector 
 #define GB_SIZE 100
 
